@@ -8,6 +8,11 @@
 #             config reloads (a reload turns the laptop screen back on)
 laptop=eDP-1
 
+# Monitor rules for the laptop screen, as Lua for `hyprctl eval`.
+laptop_off="hl.monitor({ output = \"$laptop\", disabled = true })"
+# Same as the hl.monitor() call in hyprland.lua.
+laptop_on="hl.monitor({ output = \"$laptop\", mode = \"preferred\", position = \"auto\", scale = 1 })"
+
 # Connected monitors other than the laptop screen (Hyprland adds a FALLBACK
 # monitor while nothing is connected).
 externals() {
@@ -18,25 +23,24 @@ externals() {
 case "$1" in
   external)
     if [ "$(externals)" -gt 0 ]; then
-      hyprctl keyword monitor "$laptop, disable"
+      hyprctl eval "$laptop_off"
     else
       notify-send "No external monitor connected"
     fi
     ;;
   all)
-    # Same as the monitor= line in hyprland.conf.
-    hyprctl keyword monitor "$laptop, preferred, auto, 1"
+    hyprctl eval "$laptop_on"
     ;;
   auto)
     if [ "$(externals)" -gt 0 ]; then
-      hyprctl keyword monitor "$laptop, disable"
+      hyprctl eval "$laptop_off"
     else
-      hyprctl keyword monitor "$laptop, preferred, auto, 1"
+      hyprctl eval "$laptop_on"
     fi
     ;;
   watch)
     "$0" auto
-    hyprctl dispatch workspace 7
+    hyprctl dispatch 'hl.dsp.focus({ workspace = 7 })'
     socat -U - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" |
       while IFS= read -r event; do
         case "$event" in
