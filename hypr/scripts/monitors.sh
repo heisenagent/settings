@@ -7,8 +7,11 @@
 #             whenever an external monitor is plugged in or unplugged, or the
 #             config reloads (a reload turns the laptop screen back on).
 #             When that turns the laptop screen on or off, go back to the
-#             workspace that was showing before, and restart waybar.
+#             workspace that was showing before, and restart waybar.  Logs
+#             what it does to $log.
 laptop=eDP-1
+scripts=$(dirname "$0")
+log=$XDG_RUNTIME_DIR/hypr/monitors-watch.log
 
 # Monitor rules for the laptop screen, as Lua for `hyprctl eval`.
 # hl.monitor() updates the output's existing rule and keeps the fields it
@@ -36,13 +39,28 @@ refocus() {
   hyprctl dispatch "hl.dsp.focus({ workspace = $1, on_current_monitor = true })"
 }
 
-# Waybar doesn't survive the laptop screen turning on or off, so restart it
-# once Hyprland's temporary FALLBACK monitor is gone.
-relaunch_waybar() {
-  sleep 1
-  pkill -x waybar
-  while pgrep -x waybar >/dev/null; do sleep 0.1; done
-  hyprctl dispatch 'hl.dsp.exec_cmd("waybar")'
+# Prints the focused workspace's number (empty for a special workspace).
+active_ws() {
+  hyprctl activeworkspace -j | jq -r '.id // empty'
+}
+
+# After refocus: Hyprland 0.57 can still move the laptop screen to the
+# workspace it showed last (or a new workspace 1) after reporting the
+# switch, so check again once things have settled.  Also restart waybar,
+# which doesn't survive the laptop screen turning on or off, once Hyprland's
+# temporary FALLBACK monitor is gone.
+settle() {
+  for delay in 1 2; do
+    sleep "$delay"
+    active=$(active_ws)
+    log "settle: on '$active', want $1"
+    [ "$active" = "$1" ] || refocus "$1" "$2"
+    [ "$delay" = 1 ] && "$scripts/waybar.sh"
+  done
+}
+
+log() {
+  echo "$(date +%T.%3N) $*" >> "$log"
 }
 
 # Milliseconds since the epoch.
@@ -91,15 +109,16 @@ case "$1" in
     cur_at=0
     stable=7
     saved=
+    : > "$log"
     socat -U - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" |
       while IFS= read -r event; do
         case "$event" in
           # Sent once the laptop screen is on or off (from "auto" below).
-          "monitoradded>>$laptop")
-            [ -n "$saved" ] && { refocus "$saved" on; relaunch_waybar & }
-            saved= ;;
-          "monitorremoved>>$laptop")
-            [ -n "$saved" ] && { refocus "$saved" off; relaunch_waybar & }
+          "monitoradded>>$laptop" | "monitorremoved>>$laptop")
+            log "$event, saved '$saved'"
+            state=on
+            [ "${event%%>>*}" = monitorremoved ] && state=off
+            [ -n "$saved" ] && { refocus "$saved" "$state"; settle "$saved" "$state" & }
             saved= ;;
           monitoradded\>\>* | monitorremoved\>\>* | configreloaded\>\>*)
             # Save the workspace if "auto" is about to turn the laptop
@@ -108,10 +127,12 @@ case "$1" in
             [ $(($(now) - cur_at)) -ge 1000 ] && stable=$cur
             want=on
             [ "$(externals)" -gt 0 ] && want=off
-            [ -z "$saved" ] && [ "$(laptop_state)" != "$want" ] && saved=$stable
+            state=$(laptop_state)
+            [ -z "$saved" ] && [ "$state" != "$want" ] && saved=$stable
+            log "$event: laptop $state, want $want, saved '$saved'"
             "$0" auto ;;
           # workspacev2>>ID,NAME and focusedmonv2>>MONITOR,ID.  Skip special
-          # workspaces (negative IDs).
+          # workspaces (negative IDs in 0.56, "special:NAME" in 0.57).
           workspacev2\>\>[0-9]*)
             id=${event#*>>}
             [ -z "$saved" ] && seen_ws "${id%%,*}" "$(now)" ;;

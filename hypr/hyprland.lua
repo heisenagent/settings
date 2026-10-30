@@ -523,8 +523,7 @@ hl.bind("mouse:276", hl.dsp.no_op())
 
 -- Session: reload, relaunch waybar, exit, lock, lock + suspend
 hl.bind(mainMod .. " + CTRL + C",         hl.dsp.exec_cmd("hyprctl reload"))  -- hl.dsp.reload_config() is 0.57+
--- Wait for the old waybar to exit before starting the new one (also starts it if it crashed).
-hl.bind(mainMod .. " + CTRL + R",         hl.dsp.exec_cmd("pkill -x waybar; while pgrep -x waybar >/dev/null; do sleep 0.1; done; waybar"))
+hl.bind(mainMod .. " + CTRL + R",         hl.dsp.exec_cmd(scripts .. "/waybar.sh"))
 hl.bind(mainMod .. " + CTRL + E",         hl.dsp.exec_cmd([[printf 'No\nYes - exit Hyprland\n' | fuzzel --dmenu --prompt 'Exit? ' | grep -q '^Yes' && hyprctl dispatch 'hl.dsp.exit()']]))
 hl.bind(mainMod .. " + CTRL + semicolon", hl.dsp.exec_cmd("loginctl lock-session"))
 hl.bind(mainMod .. " + apostrophe",       hl.dsp.exec_cmd("systemctl suspend"))
