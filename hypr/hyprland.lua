@@ -507,10 +507,10 @@ hl.bind(mainMod .. " + CTRL + space", hl.dsp.window.float({ action = "toggle" })
 -- window touching the right screen edge could end up a fraction of a pixel
 -- short of it, so the cursor at the edge didn't reach it (fixed upstream in
 -- Hyprland 0.56).
-hl.bind(mainMod .. " + CTRL + period", hl.dsp.window.resize({ x = -120, y = 0,    relative = true }), { repeating = true })
-hl.bind(mainMod .. " + CTRL + comma",  hl.dsp.window.resize({ x = 120,  y = 0,    relative = true }), { repeating = true })
-hl.bind(mainMod .. " + CTRL + M",      hl.dsp.window.resize({ x = 0,    y = 160,  relative = true }), { repeating = true })
-hl.bind(mainMod .. " + CTRL + slash",  hl.dsp.window.resize({ x = 0,    y = -160, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + comma",  hl.dsp.window.resize({ x = -120, y = 0,    relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + period", hl.dsp.window.resize({ x = 120,  y = 0,    relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + slash",  hl.dsp.window.resize({ x = 0,    y = 160,  relative = true }), { repeating = true })
+hl.bind(mainMod .. " + CTRL + M",      hl.dsp.window.resize({ x = 0,    y = -160, relative = true }), { repeating = true })
 
 -- Disable the mouse's back/forward buttons (bound buttons don't reach apps).
 hl.bind("mouse:275", hl.dsp.no_op())
