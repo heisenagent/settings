@@ -9,9 +9,11 @@
 laptop=eDP-1
 
 # Monitor rules for the laptop screen, as Lua for `hyprctl eval`.
+# hl.monitor() updates the output's existing rule and keeps the fields it
+# isn't given, so laptop_on has to clear "disabled" explicitly.
 laptop_off="hl.monitor({ output = \"$laptop\", disabled = true })"
 # Same as the hl.monitor() call in hyprland.lua.
-laptop_on="hl.monitor({ output = \"$laptop\", mode = \"preferred\", position = \"auto\", scale = 1 })"
+laptop_on="hl.monitor({ output = \"$laptop\", mode = \"preferred\", position = \"auto\", scale = 1, disabled = false })"
 
 # Connected monitors other than the laptop screen (Hyprland adds a FALLBACK
 # monitor while nothing is connected).
