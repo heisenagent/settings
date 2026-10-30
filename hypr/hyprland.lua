@@ -331,11 +331,9 @@ hl.config({
 ---- LAYERS ----
 ----------------
 
-hl.config({
-    layers = {
-        allow_new_top_layers_over_existing_fullscreen = true, -- Set to false to make newly mapped top layers render below existing covering fullscreen window
-    },
-})
+-- The 0.57 example sets layers.allow_new_top_layers_over_existing_fullscreen
+-- to its default (true).  Hyprland 0.56 doesn't have that option and rejects
+-- the whole hl.config() call, so leave it out.
 
 
 ---------------
@@ -519,7 +517,7 @@ hl.bind("mouse:275", hl.dsp.no_op())
 hl.bind("mouse:276", hl.dsp.no_op())
 
 -- Session: reload, exit, lock, lock + suspend
-hl.bind(mainMod .. " + CTRL + C",         hl.dsp.reload_config())
+hl.bind(mainMod .. " + CTRL + C",         hl.dsp.exec_cmd("hyprctl reload"))  -- hl.dsp.reload_config() is 0.57+
 hl.bind(mainMod .. " + CTRL + E",         hl.dsp.exec_cmd([[printf 'No\nYes - exit Hyprland\n' | fuzzel --dmenu --prompt 'Exit? ' | grep -q '^Yes' && hyprctl dispatch 'hl.dsp.exit()']]))
 hl.bind(mainMod .. " + CTRL + semicolon", hl.dsp.exec_cmd("loginctl lock-session"))
 hl.bind(mainMod .. " + apostrophe",       hl.dsp.exec_cmd("systemctl suspend"))
