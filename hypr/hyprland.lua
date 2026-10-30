@@ -316,6 +316,11 @@ hl.config({
         -- When one window is maximized (mainMod+Ctrl+f, used on the laptop screen),
         -- focusing another window maximizes that one instead.
         on_focus_under_fullscreen = 1,
+
+        -- Don't reload when the config files change: switching git branches
+        -- (especially between hyprland.conf and hyprland.lua) reloads a
+        -- half-checked-out config.  Reload with mainMod+Ctrl+c instead.
+        disable_autoreload = true,
     },
 
     binds = {
