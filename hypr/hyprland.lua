@@ -75,6 +75,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("waybar")
     hl.exec_cmd("mako")
     hl.exec_cmd("hypridle")
+    -- Undo a fade before the lock that was never restored (see hypridle.conf).
+    hl.exec_cmd(scripts .. "/dim.sh restore")
     hl.exec_cmd("blueman-applet")
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
     -- Laptop screen off while an external monitor is connected (also on hotplug).
