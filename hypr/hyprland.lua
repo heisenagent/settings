@@ -10,7 +10,7 @@
 -- sudo apt install hyprland xdg-desktop-portal-hyprland hyprlock hypridle hyprpolkitagent \
 --   waybar fuzzel mako-notifier libnotify-bin grim slurp wl-clipboard brightnessctl \
 --   playerctl gammastep jq blueman fonts-font-awesome gir1.2-playerctl-2.0 pavucontrol \
---   hyprland-qtutils socat
+--   hyprland-qtutils socat ddcutil
 
 -- Please note not all available settings / options are set here.
 -- For a full list, see the wiki
